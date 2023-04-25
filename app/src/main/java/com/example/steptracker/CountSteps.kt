@@ -21,15 +21,15 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     private lateinit var rotationVectorSensor: Sensor
     private lateinit var btnStopSensor: Button
     private lateinit var tvDirection: TextView
+    private lateinit var tvStrideLength: TextView
+    private lateinit var tvLiftStairs: TextView
     private var maxDelay: Float = 20000.0f
     private var stepCount = 0
     private var currEWMA = 0.0
-    private val filterFactor = 0.9f // Filter factor
     private var isSensorsActive = false
     private var isButtonClicked = false
     private val accelerometerValues = FloatArray(3)
     private val magneticSensorValues = FloatArray(3)
-    private var smoothedRotationVector = FloatArray(4)
 
     private lateinit var tvStepCount: TextView
 
@@ -40,6 +40,9 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         tvStepCount = findViewById(R.id.tv_step_count)
         tvDirection = findViewById(R.id.tv_direction)
+        tvStrideLength = findViewById(R.id.tv_stride)
+        tvLiftStairs = findViewById(R.id.tv_lift_stairs)
+        tvStrideLength.text = "Stride Length: ${calculateStrideLength(170.0).toInt()}"
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
@@ -80,7 +83,6 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
             sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_GAME)
             sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME)
         }
-
     }
 
     override fun onPause() {
@@ -147,11 +149,13 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun calculateStrideLength(height: Double): Double {
+        return 0.413*height
+    }
+
     private fun calculateEWMA(currentValue: Float, previousEWMA: Double, alpha: Float): Double {
         return alpha * currentValue + (1 - alpha) * previousEWMA
     }
-
-
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // Do nothing
