@@ -98,9 +98,9 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 accelerometerValues[2] = event.values[2] - 9.81f
 //                Log.i("Acc", "x: $xAcceleration, y: $yAcceleration, z: $zAcceleration")
                 val magnitudeAcceleration = sqrt(accelerometerValues[0]*accelerometerValues[0] + accelerometerValues[1]*accelerometerValues[1] + accelerometerValues[2]*accelerometerValues[2])
-                currEWMA = calculateEWMA(magnitudeAcceleration, currEWMA, 0.1f)
+                currEWMA = calculateEWMA(magnitudeAcceleration, currEWMA, 0.08f)
 //                Log.i("Values", "magnitudeAcceleration = $magnitudeAcceleration, currEWMA = $currEWMA")
-                if(magnitudeAcceleration > currEWMA+0.9){
+                if(magnitudeAcceleration > currEWMA+1.1){
                     stepCount+=1
                 }
             }
