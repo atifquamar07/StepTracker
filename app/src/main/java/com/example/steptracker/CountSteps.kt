@@ -29,6 +29,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     private var isSensorsActive = false
     private var isButtonClicked = false
     private val accelerometerValues = FloatArray(3)
+    private val accelerometerValuesForDirection = FloatArray(3)
     private val magneticSensorValues = FloatArray(3)
 
     private lateinit var tvStepCount: TextView
@@ -42,6 +43,10 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
         tvDirection = findViewById(R.id.tv_direction)
         tvStrideLength = findViewById(R.id.tv_stride)
         tvLiftStairs = findViewById(R.id.tv_lift_stairs)
+        accelerometerValuesForDirection[0] = 0.0f
+        accelerometerValuesForDirection[1] = 0.0f
+        accelerometerValuesForDirection[2] = 9.81f
+
         tvStrideLength.text = "Stride Length: ${calculateStrideLength(170.0).toInt()}"
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -98,23 +103,28 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 accelerometerValues[0] = event.values[0]
                 accelerometerValues[1] = event.values[1]
                 accelerometerValues[2] = event.values[2] - 9.81f
-//                Log.i("Acc", "x: $xAcceleration, y: $yAcceleration, z: $zAcceleration")
+
+                accelerometerValuesForDirection[0] = event.values[0]
+                accelerometerValuesForDirection[1] = event.values[1]
+                accelerometerValuesForDirection[2] = event.values[2]
+
+                // Log.i("Acc", "x: $xAcceleration, y: $yAcceleration, z: $zAcceleration")
                 val magnitudeAcceleration = sqrt(accelerometerValues[0]*accelerometerValues[0] + accelerometerValues[1]*accelerometerValues[1] + accelerometerValues[2]*accelerometerValues[2])
                 currEWMA = calculateEWMA(magnitudeAcceleration, currEWMA, 0.08f)
-//                Log.i("Values", "magnitudeAcceleration = $magnitudeAcceleration, currEWMA = $currEWMA")
+                // Log.i("Values", "magnitudeAcceleration = $magnitudeAcceleration, currEWMA = $currEWMA")
                 if(magnitudeAcceleration > currEWMA+1.1){
                     stepCount+=1
                 }
+
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 magneticSensorValues[0] = event.values[0]
                 magneticSensorValues[1] = event.values[1]
                 magneticSensorValues[2] = event.values[2]
-                //Log.i("Magnetometer", "x: ${magneticSensorValues[0]}, y: ${magneticSensorValues[1]}, z: ${magneticSensorValues[2]}")
-            }
-            Sensor.TYPE_ROTATION_VECTOR -> {
+
                 val rotationMatrix = FloatArray(9)
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+//                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerValuesForDirection, magneticSensorValues)
                 val orientation = FloatArray(3)
                 SensorManager.getOrientation(rotationMatrix, orientation)
                 val x = orientation[0] * 180 / Math.PI
