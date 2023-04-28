@@ -24,7 +24,8 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     private lateinit var tvStrideLength: TextView
     private lateinit var tvLiftStairs: TextView
     private var maxDelay: Float = 20000.0f
-    private var stepCount = 0
+    private var accelerometerSpike = 0
+    private var totalSteps = 0
     private var currEWMA = 0.0
     private var isSensorsActive = false
     private var isButtonClicked = false
@@ -52,7 +53,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
         rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-        Log.i("sampling rate", "$maxDelay")
+        Log.i("Sampling Rate", "$maxDelay")
         btnStopSensor = findViewById(R.id.btn_stop_sensor)
         btnStopSensor.setOnClickListener {
             toggleSensorListener()
@@ -63,15 +64,18 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
 
     private fun toggleSensorListener() {
         if (isSensorsActive) {
-            stepCount/=10
-            tvStepCount.text = "Steps Count: $stepCount"
+            if(accelerometerSpike >= 10){
+                totalSteps += 1
+            }
+            tvStepCount.text = "Steps Count: $totalSteps"
             btnStopSensor.text = "Start Walking"
             btnStopSensor.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
             sensorManager.unregisterListener(this)
         } else {
             btnStopSensor.text = "Stop Walking"
-            stepCount = 0
-            tvStepCount.text = "Steps Count: $stepCount"
+            accelerometerSpike = 0
+            totalSteps = 0
+            tvStepCount.text = "Steps Count: $totalSteps"
             btnStopSensor.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
             sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME)
             sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_GAME)
@@ -113,9 +117,13 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 currEWMA = calculateEWMA(magnitudeAcceleration, currEWMA, 0.08f)
                 // Log.i("Values", "magnitudeAcceleration = $magnitudeAcceleration, currEWMA = $currEWMA")
                 if(magnitudeAcceleration > currEWMA+1.1){
-                    stepCount+=1
+                    accelerometerSpike+=1
+                    if(accelerometerSpike >= 10){
+                        totalSteps += 1
+                        tvStepCount.text = "Steps Count: $totalSteps"
+                        accelerometerSpike = 0
+                    }
                 }
-
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 magneticSensorValues[0] = event.values[0]
