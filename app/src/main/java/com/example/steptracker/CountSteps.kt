@@ -146,8 +146,12 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 magneticSensorValues[1] = event.values[1]
                 magneticSensorValues[2] = event.values[2]
 
+                val magnitudeMagnetometer = sqrt(magneticSensorValues[0]*magneticSensorValues[0] + magneticSensorValues[1]*magneticSensorValues[1] + magneticSensorValues[2]*magneticSensorValues[2])
+                if(magnitudeMagnetometer <= 25.0){
+                    Toast.makeText(this, "Using Lift", Toast.LENGTH_SHORT).show()
+                }
+
                 val rotationMatrix = FloatArray(9)
-//                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
                 SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerValuesForDirection, magneticSensorValues)
                 val orientation = FloatArray(3)
                 SensorManager.getOrientation(rotationMatrix, orientation)
