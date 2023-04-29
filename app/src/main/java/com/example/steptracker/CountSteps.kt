@@ -130,7 +130,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 }
 
                 val zAcceleration = event.values[2]
-                currEWMAforZ = calculateEWMA(zAcceleration, currEWMAforZ, 0.7f)
+                currEWMAforZ = calculateEWMA(zAcceleration, currEWMAforZ, 0.3f)
 //                currEWMAforZ = 0.7 * currEWMAforZ + 0.3 * zAcceleration
                 if(zAcceleration > currEWMAforZ+6){
                     zaccelerometerSpike+=1
