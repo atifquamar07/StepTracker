@@ -10,8 +10,10 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class CountSteps : AppCompatActivity(), SensorEventListener {
@@ -25,8 +27,10 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     private lateinit var tvLiftStairs: TextView
     private var maxDelay: Float = 20000.0f
     private var accelerometerSpike = 0
+    private var zaccelerometerSpike = 0
     private var totalSteps = 0
     private var currEWMA = 0.0
+    private var currEWMAforZ = 0.0
     private var isSensorsActive = false
     private var isButtonClicked = false
     private val accelerometerValues = FloatArray(3)
@@ -124,6 +128,18 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                         accelerometerSpike = 0
                     }
                 }
+
+                val zAcceleration = event.values[2]
+                currEWMAforZ = calculateEWMA(zAcceleration, currEWMAforZ, 0.7f)
+//                currEWMAforZ = 0.7 * currEWMAforZ + 0.3 * zAcceleration
+                if(zAcceleration > currEWMAforZ+6){
+                    zaccelerometerSpike+=1
+                    if(zaccelerometerSpike >= 10){
+                        Toast.makeText(this, "Using Stairs", Toast.LENGTH_SHORT).show()
+                        zaccelerometerSpike = 0
+                    }
+                }
+
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 magneticSensorValues[0] = event.values[0]
