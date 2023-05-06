@@ -6,15 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/tv_input"
+        android:layout_marginTop="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textSize="20sp"
+        android:fontFamily="@font/semi_bold"
+        android:text="Enter your height in centimeters: " />
+
+    <EditText
+        android:id="@+id/et_height"
+        android:layout_below="@id/tv_input"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:hint="Height in cms (e.g. 170)"/>
 
     <Button
         android:id="@+id/btn_count_steps"
         android:layout_width="200dp"
         android:paddingVertical="14dp"
         android:layout_height="wrap_content"
+        android:layout_below="@id/et_height"
         android:textSize="19sp"
         android:textAllCaps="false"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         android:text="Count Steps" />
+
+
 </RelativeLayout>
