@@ -2,29 +2,29 @@ package com.example.steptracker
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+
 
 class CountSteps : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometerSensor: Sensor
     private lateinit var magnetometerSensor: Sensor
-
     private lateinit var btnStopSensor: Button
     private lateinit var tvDirection: TextView
     private lateinit var tvStrideLength: TextView
@@ -42,6 +42,9 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     private var yDisplacement: Double = 0.0
     private var isSensorsActive = false
     private var isButtonClicked = false
+//    private val mScaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
+    private lateinit var mScaleGestureDetector: ScaleGestureDetector
+    private var mScaleFactor = 1.0f
     private val accelerometerValues = FloatArray(3)
     private val magneticSensorValues = FloatArray(3)
     private lateinit var canvasView: CanvasView
@@ -61,6 +64,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
         tvStrideLength = findViewById(R.id.tv_stride)
         tvDisplacement = findViewById(R.id.tv_displacement)
         canvasView = findViewById(R.id.canvas_view)
+        mScaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
         height = intent.getIntExtra("height", 170)
         strideLength = calculateStrideLength(height.toDouble())
         tvStrideLength.text = "Stride Length: ${strideLength.toInt()} cm"
@@ -82,7 +86,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 totalSteps += 1
                 val dx = cos(currAzimuth - start)*(strideLength/100.0)
                 val dy = sin(currAzimuth - start)*(strideLength/100.0)
-                canvasView.updateData(dx, dy)
+                canvasView.updateData(dx, dy, false)
                 xDisplacement += dx
                 yDisplacement += dy
                 Log.i("CountSteps", "start: $start, xDisplacement : $xDisplacement, yDisplacement : $yDisplacement, dx : $dx, dy = $dy")
@@ -102,6 +106,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
             yDisplacement = 0.0
             tvStepCount.text = "Steps Count: $totalSteps"
             val formatted = String.format("%.8f", currDisplacement)
+            canvasView.updateData((canvasView.width/2).toDouble(), (canvasView.height/2).toDouble(), true)
             tvDisplacement.text = "Displacement: $formatted metres"
             btnStopSensor.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
             sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME)
@@ -144,7 +149,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                         tvStepCount.text = "Steps Count: $totalSteps"
                         val dx = cos(currAzimuth - start)*(strideLength)
                         val dy = sin(currAzimuth - start)*(strideLength)
-                        canvasView.updateData(dx, dy)
+                        canvasView.updateData(dx, dy, false)
                         xDisplacement += dx
                         yDisplacement += dy
                         Log.i("CountSteps", "start: $start, xDisplacement : $xDisplacement, yDisplacement : $yDisplacement, dx : $dx, dy = $dy")
@@ -186,7 +191,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 val xToDegree = orientation[0] * 180 / Math.PI
                 setDirection(xToDegree)
                 currAzimuth = orientation[0].toDouble()
-                canvasView.updateData(currAzimuth, currAzimuth)
+//                canvasView.updateData(currAzimuth, currAzimuth)
                 if(!isOriginSet){
                     start = currAzimuth
                     isOriginSet = true
@@ -237,4 +242,20 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
 
     }
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.let {
+            return mScaleGestureDetector.onTouchEvent(it)
+        }
+        return super.onTouchEvent(event)
+    }
+    inner class ScaleListener : SimpleOnScaleGestureListener() {
+        override fun onScale(scaleGestureDetector: ScaleGestureDetector): Boolean {
+            mScaleFactor *= scaleGestureDetector.scaleFactor
+            mScaleFactor = mScaleFactor.coerceAtLeast(0.1f).coerceAtMost(5.0f)
+            canvasView.scaleX = mScaleFactor
+            canvasView.scaleY = mScaleFactor
+            return true
+        }
+    }
 }
+

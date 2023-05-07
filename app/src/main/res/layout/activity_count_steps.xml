@@ -51,15 +51,21 @@
         android:fontFamily="@font/semi_bold"
         android:text="Displacement: " />
 
-
-    <com.example.steptracker.CanvasView
-        android:id="@+id/canvas_view"
-        android:layout_marginBottom="90dp"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/tv_displacement"
+    <RelativeLayout
+        android:id="@+id/layout_view"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:background="#A2A3C3" />
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="90dp"
+        android:layout_below="@+id/tv_displacement">
+
+        <com.example.steptracker.CanvasView
+            android:id="@+id/canvas_view"
+            android:layout_width="5000dp"
+            android:layout_height="5000dp"
+            android:background="#A2A3C3" />
+
+    </RelativeLayout>
 
 
     <Button
