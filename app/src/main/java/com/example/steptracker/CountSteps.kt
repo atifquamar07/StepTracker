@@ -191,7 +191,6 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
                 val xToDegree = orientation[0] * 180 / Math.PI
                 setDirection(xToDegree)
                 currAzimuth = orientation[0].toDouble()
-//                canvasView.updateData(currAzimuth, currAzimuth)
                 if(!isOriginSet){
                     start = currAzimuth
                     isOriginSet = true
