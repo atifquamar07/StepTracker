@@ -179,7 +179,7 @@ class CountSteps : AppCompatActivity(), SensorEventListener {
 
                 // FOR LIFT DETECTION
                 val magnitudeMagnetometer = sqrt(magneticSensorValues[0]*magneticSensorValues[0] + magneticSensorValues[1]*magneticSensorValues[1] + magneticSensorValues[2]*magneticSensorValues[2])
-                if(magnitudeMagnetometer <= 25.0){
+                if(magnitudeMagnetometer <= 27.5){
                     Toast.makeText(this, "Using Lift", Toast.LENGTH_SHORT).show()
                 }
 
